@@ -170,23 +170,17 @@ form button:hover {
     color: gray;
     font-style: italic;
 }
-.invite-button {
+#inviteButton {
     background-color: #007bff; /* Синий цвет */
-    color: white;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    font-weight: bold;
-    transition: 0.3s;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    color: white; /* Белый текст */
+    border: none; /* Убираем границы */
+    padding: 10px 20px; /* Внутренние отступы */
+    font-size: 16px; /* Размер текста */
+    border-radius: 20px; /* Круглые углы */
+    cursor: pointer; /* Курсор в виде указателя */
+    transition: background 0.3s; /* Плавное изменение цвета */
 }
 
-.invite-button:hover {
-    background-color: #0056b3; /* Темнее при наведении */
-}
-
-.invite-button:active {
-    background-color: #004099; /* Ещё темнее при нажатии */
+#inviteButton:hover {
+    background-color: #0056b3; /* Темно-синий при наведении */
 }
