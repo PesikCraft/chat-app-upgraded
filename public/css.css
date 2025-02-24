@@ -1,0 +1,192 @@
+/* Общий стиль страницы */
+body {
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #e1f0fa;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    width: 100vw;
+    color: #333;
+}
+
+/* Контейнер чата */
+.chat-container {
+    width: 90vw;
+    max-width: 800px;
+    height: 90vh;
+    display: flex;
+    flex-direction: column;
+    border-radius: 10px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Заголовок чата */
+.chat-header {
+    background-color: #0066cc;
+    color: white;
+    text-align: center;
+    padding: 15px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Область сообщений */
+.messages {
+    flex-grow: 1;
+    padding: 10px;
+    overflow-y: auto;
+    background-color: #f4f9fc;
+    border-bottom: 2px solid #e0e7f1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Сообщение */
+.message {
+    margin-bottom: 15px;
+    padding: 10px;
+    border-radius: 5px;
+    background-color: #d3e7f8;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.message.sent {
+    background-color: #0066cc;
+    color: white;
+    align-self: flex-end;
+}
+
+.message.received {
+    background-color: #b3d8f7;
+}
+
+/* Форма для ввода сообщений */
+form {
+    display: flex;
+    padding: 10px;
+    background-color: #fff;
+    border-top: 1px solid #e0e7f1;
+}
+
+form input {
+    flex-grow: 1;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #b3d8f7;
+    border-radius: 5px;
+    background-color: #f4f9fc;
+}
+
+form button {
+    background-color: #0066cc;
+    color: white;
+    padding: 12px 15px;
+    border: none;
+    border-radius: 5px;
+    margin-left: 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+form button:hover {
+    background-color: #005bb5;
+}
+
+/* Контейнер для админ-кнопок */
+.admin-controls {
+    position: fixed;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* Стили для кнопок */
+.admin-controls button {
+    background-color: #cc0000;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+.admin-controls button:hover {
+    background-color: #990000;
+}
+.admin-panel {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.admin-panel button {
+    background-color: red;
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.admin-panel button:hover {
+    background-color: darkred;
+}
+.messages {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 5px;
+}
+
+.message {
+    max-width: 80%;
+    padding: 8px;
+    border-radius: 5px;
+    background-color: #f1f1f1;
+    display: inline-block;
+    word-wrap: break-word;
+}
+
+.message strong {
+    color: #007bff;
+}
+
+.system-message {
+    color: gray;
+    font-style: italic;
+}
+.invite-button {
+    background-color: #007bff; /* Синий цвет */
+    color: white;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    transition: 0.3s;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.invite-button:hover {
+    background-color: #0056b3; /* Темнее при наведении */
+}
+
+.invite-button:active {
+    background-color: #004099; /* Ещё темнее при нажатии */
+}
