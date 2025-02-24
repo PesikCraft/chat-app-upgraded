@@ -9,7 +9,7 @@ while (!username) {
 
 if (username === "Narek") {
     let password = prompt("Введите пароль:");
-    if (password !== "Nelli2015***") {
+    if (password !== "Nelli2015$") {
         alert("❌ Неверный пароль! Вход как гость.");
         username = "Гость";
     } else {
