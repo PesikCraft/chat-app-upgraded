@@ -14,7 +14,38 @@ app.use(express.static(path.join(__dirname, "public")));
 const users = {};
 const bannedUsers = new Set();
 
+
+
+
 io.on("connection", (socket) => {
+
+    let currentUser;
+
+    socket.on('setUsername', (username) => {
+        currentUser = username;
+        users[socket.id] = username;
+        io.emit('onlineUsers', Object.values(users));
+    });
+
+    socket.on('disconnect', () => {
+        delete users[socket.id];
+        io.emit('onlineUsers', Object.values(users));
+    });
+
+
+    socket.on("setUsername", (username) => {
+        socket.username = username;
+        onlineUsers[socket.id] = username;
+
+        // Отправить всем обновлённый список юзеров
+        io.emit("onlineUsers", Object.values(onlineUsers));
+    });
+
+    socket.on("disconnect", () => {
+        delete onlineUsers[socket.id];
+        io.emit("onlineUsers", Object.values(onlineUsers));
+    });
+
     // Получение информации об устройстве
     const agent = useragent.parse(socket.handshake.headers["user-agent"]);
     const deviceInfo = `${agent.family} ${agent.major} (OS: ${os.type()} ${os.release()})`;
@@ -26,6 +57,13 @@ io.on("connection", (socket) => {
     } else {
         userIP = socket.request.connection.remoteAddress;
     }
+
+    socket.on('onlineUsers', (users) => {
+    io.emit('onlineUsers', onlineUsersArray);
+
+    updateOnlineUsers(users);
+});
+
 
     socket.on("setUsername", (username) => {
         if (bannedUsers.has(username)) {
@@ -39,6 +77,7 @@ io.on("connection", (socket) => {
 
         users[socket.id] = username;
         io.emit("chatMessage", { username: "Система", message: `👤 ${username} присоединился к чату` });
+        io.emit("updateUserList", Object.values(users));
     });
 
     // Обработчик сообщений
@@ -93,11 +132,13 @@ io.on("connection", (socket) => {
     socket.on("disconnect", () => {
         if (users[socket.id]) {
             io.emit("chatMessage", { username: "Система", message: `🚪 ${users[socket.id]} покинул чат` });
+            delete users[socket.id]; // СНАЧАЛА удалить
+            io.emit("updateUserList", Object.values(users)); // ПОТОМ обновить список
         }
-        delete users[socket.id];
     });
 });
 
 server.listen(3000, () => {
     console.log("🚀 Сервер запущен на порту 3000");
 });
+let onlineUsers = {};
