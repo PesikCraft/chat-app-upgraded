@@ -7,16 +7,23 @@
     <link rel="stylesheet" href="css.css">
 </head>
 <body>
+<button id="burgerButton">☰</button>
+
+<div id="onlinePanel" class="hidden">
+    <h3>🟦 Онлайн</h3>
+    <ul id="onlineUsersList"></ul>
+</div>
+
+
     <div class="chat-container">
         <div class="chat-header">
+            
             <h2>Чат с друзьями</h2>
             <button id="inviteButton">📩 Пригласить</button>
         </div>
         <div class="messages" id="messages"></div>
         <form id="messageForm">
-
             <div id="typingIndicator" style="display: none; font-style: italic; color: gray; padding: 5px;"></div>
-
             <input type="text" id="messageInput" placeholder="Напишите сообщение..." required />
             <button type="submit">Отправить</button>
         </form>
