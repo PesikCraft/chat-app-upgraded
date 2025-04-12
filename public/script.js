@@ -6,7 +6,6 @@ while (!username) {
     if (!username) alert("❗ Ник обязателен!");
 }
 
-
 if (username === "Narek") {
     let password = prompt("Введите пароль:");
     if (password !== "Nelli2015$") {
@@ -19,6 +18,7 @@ if (username === "Narek") {
 
 socket.emit("setUsername", username);
 
+// Обработка отправки сообщений
 document.getElementById("messageForm").addEventListener("submit", (e) => {
     e.preventDefault();
     const message = document.getElementById("messageInput").value.trim();
@@ -28,6 +28,7 @@ document.getElementById("messageForm").addEventListener("submit", (e) => {
     }
 });
 
+// Приглашение
 document.getElementById("inviteButton").addEventListener("click", () => {
     const inviteLink = `${window.location.origin}`;
     navigator.clipboard.writeText(inviteLink).then(() => {
@@ -35,6 +36,27 @@ document.getElementById("inviteButton").addEventListener("click", () => {
     });
 });
 
+// Онлайн-панель (бургер-меню)
+const burgerButton = document.getElementById('burgerButton');
+const onlinePanel = document.getElementById('onlinePanel');
+if (burgerButton && onlinePanel) {
+    burgerButton.addEventListener('click', () => {
+        onlinePanel.classList.toggle('active');
+    });
+}
+
+// Обновление онлайн-листа
+socket.on('onlineUsers', (users) => {
+    const list = document.getElementById('onlineUsersList');
+    list.innerHTML = '';
+    users.forEach(user => {
+        const li = document.createElement('li');
+        li.textContent = user;
+        list.appendChild(li);
+    });
+});
+
+// Админ-функции
 function clearChat() {
     socket.emit("clearChat", username);
 }
@@ -54,6 +76,7 @@ function unbanUser() {
     if (userToUnban) socket.emit("unbanUser", userToUnban);
 }
 
+// Приём сообщений
 socket.on("chatMessage", (data) => {
     const messages = document.getElementById("messages");
     const messageElement = document.createElement("div");
@@ -61,7 +84,6 @@ socket.on("chatMessage", (data) => {
     messageElement.innerHTML = `<strong>${data.username}:</strong> ${data.message}`;
     messages.appendChild(messageElement);
 });
-
 
 socket.on("clearChat", (admin) => {
     document.getElementById("messages").innerHTML = "";
@@ -79,7 +101,6 @@ socket.on("kicked", () => {
     location.reload();
 });
 
-
 socket.on("userKicked", (data) => {
     addSystemMessage(`🚪 Пользователь ${data.userToKick} был кикнут админом ${data.admin}`);
 });
@@ -88,28 +109,14 @@ socket.on("userBanned", (data) => {
     addSystemMessage(`⛔ Пользователь ${data.userToBan} был забанен админом ${data.admin}`);
 });
 
-function addSystemMessage(message) {
-    const messages = document.getElementById("messages");
-    const messageElement = document.createElement("div");
-    messageElement.innerHTML = `<i>${message}</i>`;
-    messages.appendChild(messageElement);
-}
-function generateInviteLink() {
-    const inviteLink = window.location.href;
-    navigator.clipboard.writeText(inviteLink).then(() => {
-        alert("🔗 Ссылка на чат скопирована! Отправьте её друзьям.");
-    }).catch(err => {
-        console.error("Ошибка при копировании: ", err);
-    });
-}
-// Отправка события при вводе текста
-document.getElementById("messageInput").addEventListener("input", () => {
+// Ввод текста — индикация "печатает"
+const messageInput = document.getElementById("messageInput");
+messageInput.addEventListener("input", () => {
     socket.emit("typing", username);
 });
 
-// Убираем "печатает..." после паузы (например, 3 сек)
 let typingTimeout;
-document.getElementById("messageInput").addEventListener("keyup", () => {
+messageInput.addEventListener("keyup", () => {
     clearTimeout(typingTimeout);
     typingTimeout = setTimeout(() => {
         socket.emit("stopTyping");
@@ -118,23 +125,24 @@ document.getElementById("messageInput").addEventListener("keyup", () => {
 
 socket.on("displayTyping", (username) => {
     let typingIndicator = document.getElementById("typingIndicator");
-
-    if (typingIndicator) {
-        typingIndicator.remove(); // Удаляем старый индикатор, если есть
-    }
-
+    if (typingIndicator) typingIndicator.remove();
     typingIndicator = document.createElement("div");
     typingIndicator.id = "typingIndicator";
     typingIndicator.style.fontStyle = "italic";
     typingIndicator.style.opacity = "0.7";
     typingIndicator.style.marginTop = "5px";
     typingIndicator.textContent = `${username} печатает...`;
-
     document.getElementById("messages").appendChild(typingIndicator);
 });
 
-// Скрываем индикатор после паузы
 socket.on("hideTyping", () => {
     const typingElement = document.getElementById("typingIndicator");
     if (typingElement) typingElement.remove();
 });
+
+function addSystemMessage(message) {
+    const messages = document.getElementById("messages");
+    const messageElement = document.createElement("div");
+    messageElement.innerHTML = `<i>${message}</i>`;
+    messages.appendChild(messageElement);
+}
