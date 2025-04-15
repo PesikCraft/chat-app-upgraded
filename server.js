@@ -1,144 +1,180 @@
 const express = require("express");
 const http = require("http");
-const socketIo = require("socket.io");
+const { Server } = require("socket.io");
+const session = require("express-session");
+const passport = require("passport");
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const path = require("path");
-const useragent = require("useragent");
-const os = require("os");
 
 const app = express();
 const server = http.createServer(app);
-const io = socketIo(server);
-
-app.use(express.static(path.join(__dirname, "public")));
+const io = new Server(server);
 
 const users = {};
-const bannedUsers = new Set();
+const banned = new Set();
+
+app.use(express.static("public"));
+app.use(express.json());
+
+app.use(session({
+  secret: "secret",
+  resave: false,
+  saveUninitialized: true
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+// ТВОЙ ОАКЛИЕНТ
+passport.use(new GoogleStrategy({
+  clientID: "499495050077-81cjnge0tqljl17g9ngmeqse1hg7im4k.apps.googleusercontent.com",
+  clientSecret: "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",
+  callbackURL: "/auth/google/callback"
+}, (accessToken, refreshToken, profile, done) => {
+  done(null, profile);
+}));
+
+passport.serializeUser((user, done) => done(null, user));
+passport.deserializeUser((user, done) => done(null, user));
+
+// Роуты Google OAuth
+app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
+app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/" }), (req, res) => {
+  res.redirect("/?googleLogin=true");
+});
 
 
 
 
+
+app.get("/logout", (req, res) => {
+  req.logout(() => {
+    res.redirect("/");
+  });
+});
+
+app.get("/user-info", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.json({
+      nickname: req.user.displayName,
+      isAdmin: req.user.emails[0].value === "persikkopa0@gmail.com"
+    });
+  } else {
+    res.json(null);
+  }
+});
+
+// Главная страница
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
+// Socket.io
 io.on("connection", (socket) => {
+  let nickname = null;
 
-    let currentUser;
-
-    socket.on('setUsername', (username) => {
-        currentUser = username;
-        users[socket.id] = username;
-        io.emit('onlineUsers', Object.values(users));
-    });
-
-    socket.on('disconnect', () => {
-        delete users[socket.id];
-        io.emit('onlineUsers', Object.values(users));
-    });
-
-
-    socket.on("setUsername", (username) => {
-        socket.username = username;
-        onlineUsers[socket.id] = username;
-
-        // Отправить всем обновлённый список юзеров
-        io.emit("onlineUsers", Object.values(onlineUsers));
-    });
-
-    socket.on("disconnect", () => {
-        delete onlineUsers[socket.id];
-        io.emit("onlineUsers", Object.values(onlineUsers));
-    });
-
-    // Получение информации об устройстве
-    const agent = useragent.parse(socket.handshake.headers["user-agent"]);
-    const deviceInfo = `${agent.family} ${agent.major} (OS: ${os.type()} ${os.release()})`;
-
-    // Получение IP-адреса
-    let userIP = socket.handshake.address;
-    if (userIP === "::1" || userIP === "127.0.0.1") {
-        userIP = "Локальный IP (Тест)";
-    } else {
-        userIP = socket.request.connection.remoteAddress;
+  socket.on("kickUser", (data) => {
+  for (let [id, user] of Object.entries(users)) {
+    if (user.name === data.userToKick) {
+      io.to(id).emit("kicked");
+      io.emit("chatMessage", { username: "Система", message: `${data.userToKick} был кикнут админом ${data.admin}` });
+      delete users[id];
+      break;
     }
+  }
+  io.emit("onlineUsers", Object.values(users).map(u => u.name));
+});
 
-    socket.on('onlineUsers', (users) => {
-    io.emit('onlineUsers', onlineUsersArray);
-
-    updateOnlineUsers(users);
+socket.on("banUser", (data) => {
+  for (let [id, user] of Object.entries(users)) {
+    if (user.name === data.userToBan) {
+      banned.add(user.name);
+      io.to(id).emit("banned");
+      io.emit("chatMessage", { username: "Система", message: `${data.userToBan} был забанен админом ${data.admin}` });
+      delete users[id];
+      break;
+    }
+  }
+  io.emit("onlineUsers", Object.values(users).map(u => u.name));
 });
 
 
-    socket.on("setUsername", (username) => {
-        if (bannedUsers.has(username)) {
-            socket.emit("banned");
-            return;
-        }
 
-        console.log(`📌 Новый пользователь: ${username}`);
-        console.log(`📱 Устройство: ${deviceInfo}`);
-        console.log(`🌍 IP-адрес: ${userIP}`);
-
-        users[socket.id] = username;
-        io.emit("chatMessage", { username: "Система", message: `👤 ${username} присоединился к чату` });
-        io.emit("updateUserList", Object.values(users));
-    });
-
-    // Обработчик сообщений
-    socket.on("chatMessage", (data) => {
-        io.emit("chatMessage", data);
-    });
-
-    // Очистка чата
-    socket.on("clearChat", (admin) => {
-        io.emit("clearChat", admin);
-    });
-
-    // Кик пользователя
-    socket.on("kickUser", (data) => {
-        const { userToKick, admin } = data;
-        const kickedSocketId = Object.keys(users).find((id) => users[id] === userToKick);
-        if (kickedSocketId) {
-            io.to(kickedSocketId).emit("kicked");
-            io.emit("chatMessage", { username: "Система", message: `🚪 ${userToKick} был кикнут администратором ${admin}` });
-            io.sockets.sockets.get(kickedSocketId).disconnect();
-        }
-    });
-
-    // Бан пользователя
-    socket.on("banUser", (data) => {
-        const { userToBan, admin } = data;
-        bannedUsers.add(userToBan);
-        const bannedSocketId = Object.keys(users).find((id) => users[id] === userToBan);
-        if (bannedSocketId) {
-            io.to(bannedSocketId).emit("banned");
-            io.emit("chatMessage", { username: "Система", message: `⛔ ${userToBan} был забанен администратором ${admin}` });
-            io.sockets.sockets.get(bannedSocketId).disconnect();
-        }
-    });
-
-    // Разбан пользователя
-    socket.on("unbanUser", (userToUnban) => {
-        bannedUsers.delete(userToUnban);
-        io.emit("chatMessage", { username: "Система", message: `🔓 ${userToUnban} был разбанен` });
-    });
-
-    // Обработка ввода (кто печатает)
-    socket.on("typing", (username) => {
-        socket.broadcast.emit("displayTyping", username);
-    });
-
-    socket.on("stopTyping", () => {
-        socket.broadcast.emit("hideTyping");
-    });
-
-    // Отключение пользователя
-    socket.on("disconnect", () => {
-        if (users[socket.id]) {
-            io.emit("chatMessage", { username: "Система", message: `🚪 ${users[socket.id]} покинул чат` });
-            delete users[socket.id]; // СНАЧАЛА удалить
-            io.emit("updateUserList", Object.values(users)); // ПОТОМ обновить список
-        }
+socket.on("unbanUser", (username) => {
+    banned.delete(username);
+    io.emit("chatMessage", {
+        username: "Система",
+        message: `${username} был разбанен`
     });
 });
+
+
+  socket.on("setUsername", (name) => {
+    nickname = name;
+    users[socket.id] = { name: nickname };
+    io.emit("chatMessage", { username: "Система", message: `${nickname} подключился к чату` });
+    io.emit("onlineUsers", Object.values(users).map(u => u.name));
+  });
+
+  socket.on("chatMessage", (data) => {
+    if (!banned.has(data.username)) {
+      io.emit("chatMessage", { username: data.username, message: data.message });
+    }
+  });
+
+  socket.on("typing", (name) => {
+    socket.broadcast.emit("displayTyping", name);
+  });
+
+  socket.on("stopTyping", () => {
+    socket.broadcast.emit("hideTyping");
+  });
+
+  socket.on("kickUser", (data) => {
+    for (let [id, user] of Object.entries(users)) {
+      if (user.name === data.user) {
+        io.to(id).emit("kicked");
+        io.emit("chatMessage", { username: "Система", message: `${data.user} был кикнут` });
+        delete users[id];
+        break;
+      }
+    }
+    io.emit("onlineUsers", Object.values(users).map(u => u.name));
+  });
+
+  socket.on("banUser", (data) => {
+    for (let [id, user] of Object.entries(users)) {
+      if (user.name === data.user) {
+        banned.add(user.name);
+        io.to(id).emit("banned");
+        io.emit("chatMessage", { username: "Система", message: `${data.user} был забанен` });
+        delete users[id];
+        break;
+      }
+    }
+    io.emit("onlineUsers", Object.values(users).map(u => u.name));
+  });
+
+  socket.on("unbanUser", (data) => {
+    banned.delete(data.user);
+    io.emit("chatMessage", { username: "Система", message: `${data.user} был разбанен` });
+  });
+
+  socket.on("clearChat", (admin) => {
+    io.emit("clearChat", admin);
+  });
+
+  socket.on("disconnect", () => {
+    if (users[socket.id]) {
+      io.emit("chatMessage", { username: "Система", message: `${users[socket.id].name} покинул чат` });
+      delete users[socket.id];
+      io.emit("onlineUsers", Object.values(users).map(u => u.name));
+    }
+  });
+});
+
+
 
 server.listen(3000, () => {
-    console.log("🚀 Сервер запущен на порту 3000");
+  console.log("🚀 Сервер запущен на порту 3000");
 });
-let onlineUsers = {};
