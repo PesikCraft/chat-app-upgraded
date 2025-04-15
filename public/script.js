@@ -1,51 +1,80 @@
 const socket = io();
+let username = "";
+let isAdmin = false;
 
-let username;
-while (!username) {
-    username = prompt("Введите ваш ник:");
-    if (!username) alert("❗ Ник обязателен!");
-}
-
-if (username === "Narek") {
-    let password = prompt("Введите пароль:");
-    if (password !== "Nelli2015$") {
-        alert("❌ Неверный пароль! Вход как гость.");
-        username = "Гость";
+// Получаем данные пользователя
+fetch("/user-info")
+  .then(res => res.json())
+  .then(data => {
+    if (data && data.nickname) {
+      username = data.nickname;
+      isAdmin = data.isAdmin;
+      initChat();
     } else {
+      document.getElementById("authOverlay").style.display = "flex";
+    }
+  });
+
+// Вход по нику
+document.getElementById("nicknameLoginBtn").addEventListener("click", () => {
+    const input = document.getElementById("nicknameInput").value.trim();
+    if (!input) {
+        alert("❗ Введите ник!");
+        return;
+    }
+    username = input;
+    document.getElementById("authOverlay").style.display = "none";
+    initChat();
+});
+
+// Запускаем чат
+function initChat() {
+    document.getElementById("authOverlay").style.display = "none";
+
+    if (isAdmin) {
         document.getElementById("adminControls").style.display = "flex";
     }
-}
 
-socket.emit("setUsername", username);
+    socket.emit("setUsername", username);
 
-// Обработка отправки сообщений
-document.getElementById("messageForm").addEventListener("submit", (e) => {
-    e.preventDefault();
-    const message = document.getElementById("messageInput").value.trim();
-    if (message !== "") {
-        socket.emit("chatMessage", { username, message });
-        document.getElementById("messageInput").value = "";
+    document.getElementById("messageForm").addEventListener("submit", (e) => {
+        e.preventDefault();
+        const message = document.getElementById("messageInput").value.trim();
+        if (message !== "") {
+            socket.emit("chatMessage", { username, message });
+            document.getElementById("messageInput").value = "";
+        }
+    });
+
+    document.getElementById("inviteButton").addEventListener("click", () => {
+        const inviteLink = `${window.location.origin}`;
+        navigator.clipboard.writeText(inviteLink).then(() => {
+            alert("📩 Ссылка на чат скопирована! Отправьте её друзьям.");
+        });
+    });
+
+    const burgerButton = document.getElementById('burgerButton');
+    const onlinePanel = document.getElementById('onlinePanel');
+    if (burgerButton && onlinePanel) {
+        burgerButton.addEventListener('click', () => {
+            onlinePanel.classList.toggle('active');
+        });
     }
-});
 
-// Приглашение
-document.getElementById("inviteButton").addEventListener("click", () => {
-    const inviteLink = `${window.location.origin}`;
-    navigator.clipboard.writeText(inviteLink).then(() => {
-        alert("📩 Ссылка на чат скопирована! Отправьте её друзьям.");
+    document.getElementById("messageInput").addEventListener("input", () => {
+        socket.emit("typing", username);
     });
-});
 
-// Онлайн-панель (бургер-меню)
-const burgerButton = document.getElementById('burgerButton');
-const onlinePanel = document.getElementById('onlinePanel');
-if (burgerButton && onlinePanel) {
-    burgerButton.addEventListener('click', () => {
-        onlinePanel.classList.toggle('active');
+    let typingTimeout;
+    document.getElementById("messageInput").addEventListener("keyup", () => {
+        clearTimeout(typingTimeout);
+        typingTimeout = setTimeout(() => {
+            socket.emit("stopTyping");
+        }, 3000);
     });
 }
 
-// Обновление онлайн-листа
+// === Сокет события ===
 socket.on('onlineUsers', (users) => {
     const list = document.getElementById('onlineUsersList');
     list.innerHTML = '';
@@ -56,27 +85,6 @@ socket.on('onlineUsers', (users) => {
     });
 });
 
-// Админ-функции
-function clearChat() {
-    socket.emit("clearChat", username);
-}
-
-function kickUser() {
-    const userToKick = prompt("Введите ник для кика:");
-    if (userToKick) socket.emit("kickUser", { userToKick, admin: username });
-}
-
-function banUser() {
-    const userToBan = prompt("Введите ник для бана:");
-    if (userToBan) socket.emit("banUser", { userToBan, admin: username });
-}
-
-function unbanUser() {
-    const userToUnban = prompt("Введите ник для разбана:");
-    if (userToUnban) socket.emit("unbanUser", userToUnban);
-}
-
-// Приём сообщений
 socket.on("chatMessage", (data) => {
     const messages = document.getElementById("messages");
     const messageElement = document.createElement("div");
@@ -91,12 +99,10 @@ socket.on("clearChat", (admin) => {
 });
 
 socket.on("banned", () => {
-    localStorage.setItem("banned", "true");
     document.body.innerHTML = `<h2 style="color: red; text-align: center;">🚫 Вы забанены в чате</h2>`;
 });
 
 socket.on("kicked", () => {
-    localStorage.setItem("kicked", "true");
     alert("🚪 Вас кикнули из чата!");
     location.reload();
 });
@@ -107,20 +113,6 @@ socket.on("userKicked", (data) => {
 
 socket.on("userBanned", (data) => {
     addSystemMessage(`⛔ Пользователь ${data.userToBan} был забанен админом ${data.admin}`);
-});
-
-// Ввод текста — индикация "печатает"
-const messageInput = document.getElementById("messageInput");
-messageInput.addEventListener("input", () => {
-    socket.emit("typing", username);
-});
-
-let typingTimeout;
-messageInput.addEventListener("keyup", () => {
-    clearTimeout(typingTimeout);
-    typingTimeout = setTimeout(() => {
-        socket.emit("stopTyping");
-    }, 3000);
 });
 
 socket.on("displayTyping", (username) => {
@@ -140,9 +132,31 @@ socket.on("hideTyping", () => {
     if (typingElement) typingElement.remove();
 });
 
+// === Админ-функции ===
+function clearChat() {
+    socket.emit("clearChat", username);
+}
+
+function kickUser() {
+    const userToKick = prompt("Введите ник для кика:");
+    if (userToKick) socket.emit("kickUser", { userToKick, admin: username });
+}
+
+function banUser() {
+    const userToBan = prompt("Введите ник для бана:");
+    if (userToBan) socket.emit("banUser", { userToBan, admin: username });
+}
+
+
+
 function addSystemMessage(message) {
     const messages = document.getElementById("messages");
     const messageElement = document.createElement("div");
     messageElement.innerHTML = `<i>${message}</i>`;
     messages.appendChild(messageElement);
+}
+
+function unbanUser() {
+    const userToUnban = prompt("Введите ник для разбана:");
+    if (userToUnban) socket.emit("unbanUser", userToUnban); // просто строка
 }
