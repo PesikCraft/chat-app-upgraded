@@ -124,191 +124,7 @@ form button:hover {
 .admin-controls button:hover {
     background-color: #990000;
 }
-.admin-panel {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
 
-.admin-panel button {
-    background-color: red;
-    color: white;
-    padding: 10px;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.admin-panel button:hover {
-    background-color: darkred;
-}
-.messages {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 5px;
-}
-
-.message {
-    max-width: 80%;
-    padding: 8px;
-    border-radius: 5px;
-    background-color: #f1f1f1;
-    display: inline-block;
-    word-wrap: break-word;
-}
-
-.message strong {
-    color: #007bff;
-}
-
-.system-message {
-    color: gray;
-    font-style: italic;
-}
-#inviteButton {
-    background-color: #007bff; /* Синий цвет */
-    color: white; /* Белый текст */
-    border: none; /* Убираем границы */
-    padding: 10px 20px; /* Внутренние отступы */
-    font-size: 16px; /* Размер текста */
-    border-radius: 20px; /* Круглые углы */
-    cursor: pointer; /* Курсор в виде указателя */
-    transition: background 0.3s; /* Плавное изменение цвета */
-}
-
-#inviteButton:hover {
-    background-color: #0056b3; /* Темно-синий при наведении */
-}/* Общий стиль страницы */
-body {
-    font-family: 'Arial', sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #e1f0fa;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    width: 100vw;
-    color: #333;
-}
-
-/* Контейнер чата */
-.chat-container {
-    width: 90vw;
-    max-width: 800px;
-    height: 90vh;
-    display: flex;
-    flex-direction: column;
-    border-radius: 10px;
-    background-color: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    overflow: hidden;
-}
-
-/* Заголовок чата */
-.chat-header {
-    background-color: #0066cc;
-    color: white;
-    text-align: center;
-    padding: 15px;
-    font-size: 18px;
-    font-weight: bold;
-}
-
-/* Область сообщений */
-.messages {
-    flex-grow: 1;
-    padding: 10px;
-    overflow-y: auto;
-    background-color: #f4f9fc;
-    border-bottom: 2px solid #e0e7f1;
-    display: flex;
-    flex-direction: column;
-}
-
-/* Сообщение */
-.message {
-    margin-bottom: 15px;
-    padding: 10px;
-    border-radius: 5px;
-    background-color: #d3e7f8;
-    max-width: 80%;
-    word-wrap: break-word;
-}
-
-.message.sent {
-    background-color: #0066cc;
-    color: white;
-    align-self: flex-end;
-}
-
-.message.received {
-    background-color: #b3d8f7;
-}
-
-/* Форма для ввода сообщений */
-form {
-    display: flex;
-    padding: 10px;
-    background-color: #fff;
-    border-top: 1px solid #e0e7f1;
-}
-
-form input {
-    flex-grow: 1;
-    padding: 12px;
-    font-size: 16px;
-    border: 1px solid #b3d8f7;
-    border-radius: 5px;
-    background-color: #f4f9fc;
-}
-
-form button {
-    background-color: #0066cc;
-    color: white;
-    padding: 12px 15px;
-    border: none;
-    border-radius: 5px;
-    margin-left: 10px;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-form button:hover {
-    background-color: #005bb5;
-}
-
-/* Контейнер для админ-кнопок */
-.admin-controls {
-    position: fixed;
-    top: 50%;
-    right: 10px;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* Стили для кнопок */
-.admin-controls button {
-    background-color: #cc0000;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: 0.3s;
-}
-
-.admin-controls button:hover {
-    background-color: #990000;
-}
 .admin-panel {
     position: fixed;
     top: 10px;
@@ -435,4 +251,413 @@ form button:hover {
     font-size: 20px;
     border-radius: 10px;
     cursor: pointer;
+}
+
+#authOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(128, 128, 128, 0.6); /* сероватый полупрозрачный фон */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+#authModal {
+  background-color: #eee;
+  padding: 20px;
+  width: 50%;
+  max-width: 300px;
+  border-radius: 20px;
+  text-align: center;
+  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+}
+
+#authModal input {
+  width: 90%;
+  padding: 10px;
+  margin-bottom: 10px;
+}
+
+#authModal button, #authModal a {
+  padding: 10px 20px;
+  margin: 5px;
+  display: inline-block;
+  text-decoration: none;
+  background-color: #2196f3;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+}/* ======= ТВОЙ ОРИГИНАЛЬНЫЙ CSS (480 строк) ======= */
+
+/* Стили для контейнера чата */
+.chat-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #f0f0f0;
+  padding: 10px;
+}
+
+/* Стили для сообщений */
+.message-container {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  flex-grow: 1;
+  padding: 10px;
+  margin-bottom: 20px;
+  height: calc(100% - 80px);
+}
+
+.message {
+  padding: 8px 12px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  background-color: #e0e0e0;
+  max-width: 80%;
+  word-wrap: break-word;
+  line-height: 1.5;
+}
+
+.message.user {
+  background-color: #0084ff;
+  color: white;
+  align-self: flex-end;
+}
+
+.message.admin {
+  background-color: #ff4444;
+  color: white;
+  align-self: flex-start;
+}
+
+.message.system {
+  background-color: #cccccc;
+  color: #333333;
+  text-align: center;
+  font-style: italic;
+}
+
+.message .user-name {
+  font-weight: bold;
+}
+
+.message .time {
+  font-size: 0.9rem;
+  color: #999;
+  margin-left: 5px;
+}
+
+/* Стиль для отправки сообщений */
+.message-input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.message-input input {
+  width: 80%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.message-input button {
+  width: 15%;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  background-color: #0084ff;
+  color: white;
+  cursor: pointer;
+}
+
+.message-input button:hover {
+  background-color: #006bb3;
+}
+
+/* ========== НОВЫЕ СТИЛИ ДЛЯ АДМИН-ПАНЕЛИ И СОБЫТИЙ ========== */
+
+/* Админ-панель снизу по горизонтали */
+.admin-panel {
+    position: fixed;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    padding: 10px;
+    background-color: #1f2937;
+    border-radius: 8px;
+    z-index: 1000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Кнопки в админ-панели */
+.admin-panel button {
+    background-color: red;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+.admin-panel button:hover {
+    background-color: #cc0000;
+}
+
+/* Защита сообщений от перекрытия */
+.messages {
+    z-index: 1;
+    position: relative;
+}
+
+.message {
+    z-index: 1;
+    position: relative;
+}
+
+/* Дополнительные стили для модального окна */
+.modal-window {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.modal-window .auth-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.modal-window button {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  background-color: #1f2937;
+  color: white;
+  cursor: pointer;
+}
+
+.modal-window button:hover {
+  background-color: #3e4b60;
+}
+
+/* Добавляем фон для сообщений */
+.messages-container {
+  background-color: #e6e6e6;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+/* Стили для панели сообщений */
+.panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f5f5f5;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.panel .title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.panel .logout-button {
+  padding: 10px;
+  background-color: #ff4444;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.panel .logout-button:hover {
+  background-color: #cc0000;
+}
+
+.panel .online-users {
+  display: flex;
+  gap: 10px;
+}
+
+/* Внешний вид всех кнопок */
+button {
+  padding: 12px;
+  border-radius: 6px;
+  border: none;
+  background-color: #1f2937;
+  color: white;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #3e4b60;
+}
+
+/* Настройки для списка пользователей */
+.users-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+.users-list li {
+  background-color: #d3d3d3;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.users-list li .user-name {
+  font-weight: bold;
+  color: #1f2937;
+}
+
+.users-list li .user-status {
+  color: #007b00;
+}
+
+.users-list li .user-status.offline {
+  color: #ff0000;
+}
+
+/* Внешний вид панели онлайн-пользователей */
+.online-users-panel {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+/* Тема панели */
+.online-users-panel .header {
+  font-weight: bold;
+  font-size: 18px;
+  color: #1f2937;
+  margin-bottom: 10px;
+}
+
+.online-users-panel .close-button {
+  background-color: #ff4444;
+  padding: 10px;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.online-users-panel .close-button:hover {
+  background-color: #cc0000;
+}
+
+/* Стили для модального окна авторизации */
+.modal {
+  display: block;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 60%;
+  height: 60%;
+  background-color: white;
+  border-radius: 10px;
+}
+
+.modal .form-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal .form-container input,
+.modal .form-container button {
+  width: 80%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.modal .form-container button {
+  background-color: #0084ff;
+  color: white;
+}
+
+.modal .form-container button:hover {
+  background-color: #006bb3;
+}
+
+/* Стили для закрытия модального окна */
+.close-modal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 10px;
+  background-color: #ff4444;
+  color: white;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.close-modal:hover {
+  background-color: #cc0000;
+}
+
+#adminControls {
+    position: fixed;
+    top: 100px;
+    right: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+#adminControls button {
+    background-color: red;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    width: 120px;
+    transition: background-color 0.2s ease;
+}
+
+#adminControls button:hover {
+    background-color: darkred;
 }
