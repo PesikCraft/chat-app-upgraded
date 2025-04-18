@@ -29,7 +29,7 @@ app.use(passport.session());
 passport.use(new GoogleStrategy({
   clientID: "499495050077-81cjnge0tqljl17g9ngmeqse1hg7im4k.apps.googleusercontent.com",
   clientSecret: "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",
-  callbackURL: process.env.GOOGLE_CALLBACK_URL || "http://localhost:3000/auth/google/callback"
+  callbackURL: process.env.GOOGLE_CALLBACK_URL || "https://chat-app-upgraded.onrender.com/auth/google/callback"
 }, (accessToken, refreshToken, profile, done) => {
   done(null, profile);
 }));
