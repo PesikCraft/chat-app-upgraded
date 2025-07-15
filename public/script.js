@@ -37,6 +37,22 @@ function initChat() {
 
     socket.emit("setUsername", username);
 
+    const darkToggle = document.getElementById("darkModeToggle");
+    if (localStorage.getItem("dark-mode") === "true") {
+        document.body.classList.add("dark-mode");
+    }
+    darkToggle.addEventListener("click", () => {
+        document.body.classList.toggle("dark-mode");
+        localStorage.setItem("dark-mode", document.body.classList.contains("dark-mode"));
+    });
+
+    document.getElementById("searchInput").addEventListener("input", () => {
+        const query = document.getElementById("searchInput").value.toLowerCase();
+        document.querySelectorAll("#messages .message").forEach(msg => {
+            msg.style.display = msg.textContent.toLowerCase().includes(query) ? "" : "none";
+        });
+    });
+
     document.getElementById("messageForm").addEventListener("submit", (e) => {
         e.preventDefault();
         const message = document.getElementById("messageInput").value.trim();
@@ -89,8 +105,21 @@ socket.on("chatMessage", (data) => {
     const messages = document.getElementById("messages");
     const messageElement = document.createElement("div");
     messageElement.classList.add("message");
-    messageElement.innerHTML = `<strong>${data.username}:</strong> ${data.message}`;
+    messageElement.dataset.id = data.id;
+    messageElement.innerHTML = `<strong>${data.username}</strong> <span class="time">${data.time}</span>: ${data.message}`;
+    if (data.username === username || isAdmin) {
+        const delBtn = document.createElement("button");
+        delBtn.textContent = "✖";
+        delBtn.classList.add("delete-btn");
+        delBtn.onclick = () => socket.emit("deleteMessage", data.id);
+        messageElement.appendChild(delBtn);
+    }
     messages.appendChild(messageElement);
+});
+
+socket.on("deleteMessage", (id) => {
+    const el = document.querySelector(`.message[data-id='${id}']`);
+    if (el) el.remove();
 });
 
 socket.on("clearChat", (admin) => {

@@ -661,3 +661,61 @@ button:hover {
 #adminControls button:hover {
     background-color: darkred;
 }
+
+/* Кнопка переключения темы */
+#darkModeToggle {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Удаление сообщения */
+.delete-btn {
+    margin-left: 10px;
+    background: transparent;
+    border: none;
+    color: #cc0000;
+    cursor: pointer;
+}
+
+/* Темная тема */
+body.dark-mode {
+    background-color: #121212;
+    color: #dddddd;
+}
+body.dark-mode .chat-container {
+    background-color: #1e1e1e;
+}
+body.dark-mode .chat-header {
+    background-color: #333333;
+}
+body.dark-mode .message {
+    background-color: #2a2a2a;
+    color: #dddddd;
+}
+body.dark-mode form {
+    background-color: #1e1e1e;
+}
+body.dark-mode form input {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border-color: #555555;
+}
+body.dark-mode form button {
+    background-color: #444444;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    border: 1px solid #b3d8f7;
+}
+body.dark-mode #searchInput {
+    background-color: #2a2a2a;
+    color: #ffffff;
+    border-color: #555555;
+}
