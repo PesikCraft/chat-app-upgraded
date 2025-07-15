@@ -5,10 +5,13 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
+    "start": "node server.js",
+    "test": "echo \"No tests specified\" && exit 0"
   },
   "dependencies": {
     "express-session": "^1.17.3",
      "bad-words": "^4.0.0",
+    "bad-words": "^4.0.0",
     "express": "^4.21.2",
     "express-session": "^1.18.1",
     "leo-profanity": "^1.7.0",
